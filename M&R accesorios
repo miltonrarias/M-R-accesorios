@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#d97706">
+    <meta name="description" content="M&R Accesorios Pro - Sistema de contabilidad y gestión para tu negocio de accesorios">
+    <title>M&R Accesorios Pro | Control de Negocio</title>
+    
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="data:application/json,{}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="M&R Accesorios">
+    
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary: #d97706;
+            --secondary: #92400e;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --background: #fffbeb;
+            --card: #ffffff;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --border: #fde68a;
+            --shadow: 0 4px 15px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        
+        [data-theme="dark"] {
+            --background: #1a1a1a;
+            --card: #2d2d2d;
+            --text: #f3f4f6;
+            --text-light: #9ca3af;
+            --border: #404040;
+            --shadow: 0 4px 15px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            transition: all 0.3s;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #92400e 0%, #d97706 50%, #f59e0b 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+        
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .header-title p {
+            font-size: 11px;
+            opacity: 0.9;
+            font-style: italic;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Navegación */
+        .nav-tabs {
+            background: var(--card);
+            padding: 10px 15px;
+            display: flex;
+            gap: 5px;
+            overflow-x: auto;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 80px;
+            z-index: 999;
+        }
+        
+        .nav-tab {
+            padding: 10px 18px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-light);
+            border-radius: 25px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-tab:hover {
+            background: var(--background);
+            color: var(--primary);
+        }
+        
+        .nav-tab.active {
+            background: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Contenido */
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .metric-card {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .metric-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .metric-card.primary {
+            background: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .metric-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .metric-card.primary .metric-label {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        /* Formularios */
+        .form-card {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        
+        .form-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--background);
+            color: var(--text);
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-info { background: var(--info); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+        
+        /* Tablas */
+        .table-container {
+            background: var(--card);
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: var(--shadow);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .badge-pendiente { background: #fef3c7; color: #d97706; }
+        .badge-pagado { background: #d1fae5; color: #059669; }
+        .badge-abonado { background: #dbeafe; color: #2563eb; }
+        
+        /* Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 500px;
+            margin: 30px auto;
+            animation: slideUp 0.3s;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            z-index: 3000;
+            display: none;
+            font-weight: 500;
+            animation: slideInRight 0.3s;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        /* Botón flotante de instalación */
+        .install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            z-index: 1500;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 767px) {
+            .content { padding: 15px; }
+            .dashboard-grid { grid-template-columns: 1fr 1fr; }
+            .header-title h1 { font-size: 16px; }
+        }
+        
+        /* Logo upload */
+        .logo-upload {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            border: 2px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            overflow: hidden;
+        }
+        
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast -->
+    <div id="toast" class="toast">✓ Guardado</div>
+    
+    <!-- Botón de instalación -->
+    <button id="installBtn" class="install-btn">📱 Instalar App</button>
+    
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left" onclick="showSection('dashboard')">
+            <div class="header-logo" id="headerLogo">💎</div>
+            <div class="header-title">
+                <h1 id="businessName">M&R Accesorios Pro</h1>
+                <p>Tu negocio, tu control</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn" onclick="toggleTheme()" title="Cambiar tema">🌓</button>
+            <button class="header-btn" onclick="exportData()" title="Exportar">📤</button>
+            <button class="header-btn" onclick="openSettings()" title="Configuración">⚙️</button>
+        </div>
+    </div>
+    
+    <!-- Navegación -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showSection('dashboard')">📊 Inicio</button>
+        <button class="nav-tab" onclick="showSection('transactions')">💳 Movimientos</button>
+        <button class="nav-tab" onclick="showSection('clients')">👥 Clientes</button>
+        <button class="nav-tab" onclick="showSection('products')">💎 Productos</button>
+        <button class="nav-tab" onclick="showSection('reports')">📈 Reportes</button>
+    </div>
+    
+    <!-- Contenido -->
+    <div class="content">
+        <!-- Dashboard -->
+        <div id="dashboard" class="section active">
+            <div class="dashboard-grid">
+                <div class="metric-card primary" onclick="showSection('reports')">
+                    <div class="metric-label">Balance del Mes</div>
+                    <div class="metric-value" id="balance">$0.00</div>
+                </div>
+                <div class="metric-card" onclick="showSection('transactions')">
+                    <div class="metric-label">Ingresos</div>
+                    <div class="metric-value" style="color: var(--success);" id="totalIncome">$0.00</div>
+                </div>
+                <div class="metric-card" onclick="showSection('transactions')">
+                    <div class="metric-label">Egresos</div>
+                    <div class="metric-value" style="color: var(--danger);" id="totalExpense">$0.00</div>
+                </div>
+                <div class="metric-card" onclick="showSection('clients')">
+                    <div class="metric-label">Por Cobrar</div>
+                    <div class="metric-value" style="color: var(--warning);" id="totalDebt">$0.00</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 25px;">
+                <button class="btn btn-primary" onclick="quickAction('ingreso')">💚 Nuevo Ingreso</button>
+                <button class="btn btn-danger" onclick="quickAction('egreso')">💔 Nuevo Egreso</button>
+                <button class="btn btn-info" onclick="quickAction('cliente')">👥 Nuevo Cliente</button>
+                <button class="btn btn-warning" onclick="openCreditSaleModal()">💳 Venta a Crédito</button>
+            </div>
+            
+            <h3 style="margin-bottom: 15px;">Deudas Pendientes</h3>
+            <div id="recentDebts"></div>
+            
+            <h3 style="margin: 25px 0 15px;">Últimas Transacciones</h3>
+            <div id="recentTransactions"></div>
+        </div>
+        
+        <!-- Transacciones -->
+        <div id="transactions" class="section">
+            <h2 style="margin-bottom: 20px;">💳 Movimientos</h2>
+            <div class="form-card">
+                <div class="form-title">Nueva Transacción</div>
+                <form id="transactionForm">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="transType" required>
+                            <option value="ingreso">💚 Ingreso</option>
+                            <option value="egreso">💔 Egreso</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <input type="text" id="transDescription" placeholder="Ej: Venta de collares" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto ($)</label>
+                        <input type="number" id="transAmount" step="0.01" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha</label>
+                        <input type="date" id="transDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                </form>
+            </div>
+            
+            <div class="form-card">
+                <div class="form-title">Búsqueda</div>
+                <input type="text" id="searchTransactions" placeholder="🔍 Buscar..." oninput="filterTransactions()" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 10px;">
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                            <th>Monto</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Clientes -->
+        <div id="clients" class="section">
+            <h2 style="margin-bottom: 20px;">👥 Clientes</h2>
+            <button class="btn btn-primary" style="margin-bottom: 15px;" onclick="openCreditSaleModal()">💳 Nueva Venta a Crédito</button>
+            
+            <div class="form-card">
+                <div class="form-title">Nuevo Cliente</div>
+                <form id="clientForm">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="clientName" placeholder="Ej: María García" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="clientPhone" placeholder="Ej: 555-1234">
+                    </div>
+                    <div class="form-group">
+         
